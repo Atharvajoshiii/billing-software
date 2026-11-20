@@ -1,0 +1,81 @@
+# Product architecture and workflows for an Indian SMB billing SaaS
+
+## 1. Shared product modules and the end-to-end operating workflow
+
+### Takeaway
+Across the six products, the common product shape is a business master-data layer (company, parties, items, tax and price settings), document workflow (quotes/orders/challans/invoices/returns), payment and outstanding tracking, and operational/compliance reporting. The depth ranges from invoice-centric Zoho Invoice to accounting-led BUSY/TallyPrime; a new web product should choose whether it is primarily a fast counter/stock tool or a proper accounting system before trying to match every module.
+
+### Cited Findings
+- BUSY markets accounting, GST accounting, financial accounting, invoicing, inventory, automatic e-invoice/e-way bill and GSTR reconciliation as one suite; its inventory feature list includes batch, expiry, serial number and custom attributes. [BUSY home](https://busy.in/); [BUSY features](https://busy.in/busy-features-and-faqs/)
+- BUSY help describes batch enablement at company and item level and capturing batch number and expiry during purchase entry, showing how catalog masters and purchase transactions feed batch stock. [BUSY batch FAQ](https://busy.in/faqs/features/inventory-parameter-batch-serial-number/18/)
+- myBillBook describes products/items, sales and purchase, party records, payments, expenses, reports, GST features, e-invoice/e-way bill, barcode, godowns and multi-user access (some depend on plan). [myBillBook business-management overview](https://mybillbook.in/s/business-management-software/)
+- myBillBook's product pages describe sale, purchase, return and stock adjustment as stock-affecting events; advanced inventory includes multi-godown transfer, serial/IMEI, batches and expiry, and low-stock alerts. [Inventory overview](https://mybillbook.in/s/best-inventory-management-software/)
+- Vyapar positions its product around invoicing, inventory, expense tracking, accounting, tax-ready reports, low stock and expiry notices, party dues, multi-device sync and user roles. [Vyapar official site](https://vyapar.com/)
+- Vyapar's POS guide describes a desktop counter workflow with external barcode scanner, weighing machine and thermal printer; stock maintenance causes POS sales to update inventory. [Vyapar POS guide](https://vyaparapp.in/guides/how-to-do-pos-billing-with-vyapar)
+- Zoho Invoice covers estimates/quotes, recurring invoices, customer portal, reminders, online and offline payments, credit notes/refunds, expenses, timesheets, reports and exports to Tally. [Zoho Invoice India](https://www.zoho.com/in/invoice/); [feature page](https://www.zoho.com/in/invoice/features/)
+- Zoho Invoice's India GST guide documents organization GST registration and GSTIN, business legal/trade name, reverse charge, customer GST treatment, customer GSTIN, goods/services classification and HSN/SAC, tax rates/exemptions, and GST return filing setup. [Zoho GST guide](https://www.zoho.com/in/invoice/help/gst/)
+- Zoho Invoice states it supports direct GSTR-1 filing and GSTR-3B JSON export, but not purchase module or GSTR-2 reports; it points purchase and fuller GST returns to Zoho Books. [GST filing help](https://www.zoho.com/in/invoice/help/gst/gst-filing.html)
+- TallyPrime presents accounting, inventory, banking, GST, sales/purchase vouchers, customizable invoice, e-invoice and e-way bills in one product. [TallyPrime overview](https://tallysolutions.com/tally-prime/); [invoicing/accounting](https://tallysolutions.com/features/invoicing-and-accounting/)
+- TallyHelp says GST setup includes company registration details, tax rates and HSN/SAC masters, connected GST settings, e-invoice/e-way bill configuration, reconciliation and optional multiple GSTINs. [Tally GST setup](https://help.tallysolutions.com/setting-up-gst-in-tallyprime/); [company features](https://help.tallysolutions.com/set-up-company-features/)
+- Sleek Bill lists quotes, proformas, tax invoices, delivery challans, credit notes, purchase orders/bills, expenses, client/vendor records, inventory, reports and GST exports; plan-level access varies. [Sleek Bill home](https://sleekbill.in/); [pricing and feature tiers](https://sleekbill.in/pricing/)
+- Sleek Bill's India pages describe GSTIN, HSN/SAC, CGST/SGST/IGST/cess, composition/bill of supply, reverse charge, GSTR reports, e-invoice/e-way bill and stock ledgers. [Sleek Bill GST/e-invoice](https://sleekbill.in/e-invoicing-software/)
+
+### Inferences
+- A useful canonical flow is: configure company/GST registrations and financial year → create customer/vendor and item masters (unit, HSN/SAC, tax category, price, barcode, batch/serial attributes) → record purchase/receipt → receive stock into location/batch → quote/order/challan → invoice → calculate tax/place-of-supply and issue invoice → collect full/partial/credit payment → update stock, receivables, ledger and tax summaries → reconcile GST portal data → file/export returns. The common vendor feature sets substantiate the nodes; exact sequence is a product design synthesis.
+- The crucial product model is a shared transaction engine: sales, purchases, returns, credit/debit notes and stock adjustments should create consistent effects across document status, inventory, party balance, cash/bank and GST summaries. This is an inference from vendors' advertised cross-module linkage, not evidence of any vendor's internal database design.
+- For usability, separate the high-frequency counter path (search/scan item, quantity, discount, tender, print/share) from the more detailed back-office paths (purchase, reconciliation, accounting reports). This is inferred from the dedicated POS and barcode workflows described by Vyapar and myBillBook.
+
+### Gaps
+- Public marketing pages do not establish the vendors' database schema, services, cloud provider, tenancy model, encryption specifics, uptime, offline synchronization conflict rules or API contracts. Do not present an implementation architecture as observed fact.
+- Module availability, device support, GST filing access and usage limits vary by plan/edition and may change; validate current plan matrices and product demos before treating a feature as baseline.
+
+## 2. Customer segments, positioning and differentiation
+
+### Takeaway
+The category divides into three overlapping jobs: fast retail/wholesale billing and stock control (myBillBook, Vyapar), accounting-first compliance and business books (BUSY, TallyPrime), and client-service invoicing/collection (Zoho Invoice). Sleek Bill positions between simple invoicing and small-business stock/compliance, with strong document and template coverage. These are relative positioning judgments based on the vendors' own feature descriptions, not market-share conclusions.
+
+### Cited Findings
+- BUSY describes itself as accounting and GST billing for MSMEs and emphasizes GST ledgers, e-invoice, e-way bill, reconciliation, inventory control and financial reports. [BUSY](https://busy.in/)
+- myBillBook explicitly targets retailers, wholesalers and distributors, with POS/barcode, GST and non-GST bills, stock, payment and multi-location flows. [Retail billing](https://mybillbook.in/s/billing-software-for-retail-shop/); [wholesale billing](https://mybillbook.in/s/billing-software-for-wholesalers/); [distributor billing](https://mybillbook.in/s/billing-software-for-distributors/)
+- Vyapar describes small businesses/SMEs and features retail POS, invoicing, inventory and expenses; official pages target shops such as supermarkets, pharmacies, mobile/electrical retailers and distributors. [Vyapar](https://vyapar.com/); [barcode billing](https://vyaparapp.in/free/barcode-billing-software)
+- Zoho Invoice explicitly lists entrepreneurs, consultants, agencies, contractors, freelancers and startups; feature emphasis includes quotes, recurring invoices, time/projects, expense billing and client portal. [Zoho Invoice India](https://www.zoho.com/in/invoice/)
+- TallyPrime's product and help materials cover accounting, inventory, banking, payroll/tax feature configuration, GST, job work and multiple registrations, indicating broader bookkeeping and operational complexity than invoice-only workflows. [TallyPrime](https://tallysolutions.com/tally-prime/); [company features](https://help.tallysolutions.com/set-up-company-features/)
+- Sleek Bill describes small businesses/SMBs and supports quotes through purchase orders/bills, inventory, expenses, GST/VAT, accounting reports, e-invoicing, multi-currency and multiple users in higher tiers. [Sleek Bill](https://sleekbill.in/); [pricing](https://sleekbill.in/pricing/)
+- myBillBook promotes barcode billing and fast-moving stock; Vyapar's POS guide calls out scanner, weighing machine and thermal printer support; BUSY lists batch/expiry/serial inventory. [myBillBook PC billing](https://mybillbook.in/s/billing-software-for-pc/); [Vyapar POS](https://vyaparapp.in/guides/how-to-do-pos-billing-with-vyapar); [BUSY features](https://busy.in/busy-features-and-faqs/)
+- Zoho's GST filing help says purchases are not part of Zoho Invoice and full purchase/GST workflow is available in Zoho Books, making the boundary between invoicing product and accounting suite explicit. [Zoho GST filing help](https://www.zoho.com/in/invoice/help/gst/gst-filing.html)
+
+### Inferences
+- BUSY/Tally are strongest reference points when the target user needs double-entry accounting, ledgers, purchase and tax reconciliation, operational vouchers, multiple registrations or manufacturing/trading controls. Their published feature breadth supports this positioning; customer adoption/market share is not established here.
+- myBillBook/Vyapar are stronger reference points for operators who value a quick invoice/POS loop, mobile/desktop use, barcodes, stock alerts and messaging. Their product descriptions imply an emphasis on minimizing bookkeeping expertise needed at the counter.
+- Zoho Invoice is a useful benchmark for service businesses, where the billable object may be time, project work or reimbursable expense rather than stock. It should not be treated as a full inventory/accounting benchmark.
+- Product opportunity: create role-specific modes rather than one dense interface—owner dashboard, cashier POS, stock/purchase clerk, accountant/CA review. This follows the distinct jobs and permissions implied by the products, but is a recommendation/inference.
+
+### Gaps
+- Public official pages are sales material and provide limited independent evidence on customer satisfaction, real active usage, support quality, implementation effort or the actual proportion of customers in each segment.
+- The user-supplied competitor list does not establish a target vertical, company size, Indian regions/languages or required accounting depth; prioritization should be revisited once these are known.
+
+## 3. Likely web-product architecture, integrations and opportunities
+
+### Takeaway
+For a web-first entrant, the public evidence points to a connected, multi-device system with configurable company/GST context, item/party masters, immutable business documents and derived stock/ledger/tax views, plus external interfaces for GSTN/IRP, payments, messaging, printers/scanners and accounting exports. This section describes a plausible design inferred from observed workflows; it does not claim knowledge of any competitor's internals.
+
+### Cited Findings
+- myBillBook markets Android, iOS, web and desktop access with cloud sync and online bill storage; it says e-invoice access uses GSTN and identifies Masters India as GSP on its PC page. [myBillBook PC billing](https://mybillbook.in/s/billing-software-for-pc/)
+- Zoho Invoice offers access across devices, multiple businesses/team users, gateway-based payments, GSTN direct GSTR-1 filing and exports for GSTR-3B; it also supports XML export to Tally. [Zoho Invoice India](https://www.zoho.com/in/invoice/); [GST filing](https://www.zoho.com/in/invoice/help/gst/gst-filing.html)
+- TallyPrime's official help describes connected GST portal upload/download/filing, GSP-mediated e-way bill generation, online/offline bulk workflows and browser reports. [GST setup](https://help.tallysolutions.com/setting-up-gst-in-tallyprime/); [e-way bill](https://help.tallysolutions.com/india-gst-e-way-bill-tally/); [release-wise features](https://help.tallysolutions.com/tallyprime-features-release-wise/)
+- Sleek Bill advertises cloud data storage, multiuser access, GSTN API interaction, invoice and inventory workflows, PDF/share, and import/export functionality depending on plan. [Sleek Bill e-invoicing](https://sleekbill.in/e-invoicing-software/); [plans](https://sleekbill.in/pricing/)
+- Vyapar describes a POS setup involving external barcode scanners, weighing scales and thermal printers, and messaging through WhatsApp, SMS or email. [Vyapar POS](https://vyaparapp.in/guides/how-to-do-pos-billing-with-vyapar); [Vyapar site](https://vyapar.com/)
+- BUSY markets e-invoice/IRP integration, e-way bills, mobile access and GST reconciliation with GSTR-1/2A/2B/3B. [BUSY home](https://busy.in/)
+
+### Inferences
+- Plausible modular domains: organization/registration/permissions; party and item masters; document numbering and sales/purchase documents; inventory movements and valuation; receivables/payables and receipts; tax computation/compliance exports; reporting; notifications; integrations. A tenant should be able to contain multiple branches/godowns and, where needed, multiple GST registrations. This is product architecture advice derived from the feature surface, not a claim about vendor internals.
+- Preserve source transactions and derive reports/stock balances from a consistent event trail; keep audit history for edits, cancellations, refunds and return documents. GST reconciliation and traceability needs make this a prudent architecture choice (inference).
+- Keep GST rules in versioned/configurable tax logic and distinguish item tax classification (HSN/SAC/rate) from transaction context (registration, place of supply, customer type, reverse charge, exemption, export). Zoho's configurable tax, customer GST treatment and HSN/SAC setup demonstrate these are separate inputs. [Zoho GST guide](https://www.zoho.com/in/invoice/help/gst/)
+- Build an integration boundary around government filing/e-invoicing, payment gateways/bank feeds, WhatsApp/SMS/email, accounting export/import, and physical peripherals. Prefer idempotent sync, retries, external request/status logs, and manual correction queues; these are design recommendations because official product pages show the workflows but not their implementation patterns.
+- A web-first UX should plan for unreliable connectivity at the billing counter, local print/scanner integration, fast keyboard operation, and explicit sync status. Competitors' PC, mobile, cloud-sync and POS hardware claims suggest these are real workflow demands, but public sources do not specify their offline guarantees.
+- Opportunity areas to validate with SMB interviews: simpler purchase-to-stock onboarding; GST error prevention with explainable validation before filing; reliable return/reconciliation queues; regional-language and assisted setup; audit-friendly correction history; predictable migration from spreadsheets/Tally/BUSY; cross-device/offline resilience; and role-focused screens. These are hypotheses, not sourced competitor defects.
+
+### Gaps
+- None of the surveyed public sources gives enough engineering detail to identify competitors' cloud topology, synchronization protocol, authorization model, event/audit design, API availability, service-level objectives or security certification beyond specific claims. Treat any proposed stack or technical design as a recommendation for the new product, not reverse-engineering.
+- GST law and portal interfaces change. This landscape scan describes product capabilities, not current legal advice or a definitive compliance specification; verify current GSTN/GSP/IRP rules during requirements and implementation planning.
+- Feature pages can be stale or plan-dependent. Confirm entitlements, integrations, supported document types, limits and filing scope in current vendor help/pricing material before a procurement-grade comparison.
